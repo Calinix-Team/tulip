@@ -14,13 +14,14 @@ import "github.com/Calinix-Team/tulip/internal"
 // installCmd represents the install command
 var installCmd = &cobra.Command{
 	Use:   "install",
-	Short: "Install a package from local repository",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Install a package from local repositories",
+	Long: `The install command is used to download the latest version of your desired application 
+from an online software repository pointed to by your /etc/pacman.d configuration file and
+install that application on your Linux machine.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+To use flags here, follow the synopsis below:
+	tulip install <package> -- <flags>
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		internal.PacmanInstall(args)
 	},
@@ -36,7 +37,7 @@ func init() {
 	installCmd.PersistentFlags().Bool("groups", false, "view all members of a package group")
 	installCmd.PersistentFlags().Bool("arch", false, "set an alternate architecture")
 	installCmd.PersistentFlags().Bool("noprogressbar", false, "do not show a progress bar when downloading files")
-
+	installCmd.PersistentFlags().Bool("noscriptlet", false, "do not execute the install scriptlet if one exists")
 
 	// Here you will define your flags and configuration settings.
 
