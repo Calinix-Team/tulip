@@ -7,6 +7,9 @@ package cmd
 import (
 	// "fmt"
 	"github.com/spf13/cobra"
+	"os"
+	"os/exec"
+	"log"
 )
 
 import "github.com/Calinix-Team/tulip/internal"
@@ -15,14 +18,29 @@ import "github.com/Calinix-Team/tulip/internal"
 var installCmd = &cobra.Command{
 	Use:   "install",
 	Short: "Install a package from local repositories",
-	Long: `The install command is used to download the latest version of your desired application 
-from an online software repository pointed to by your /etc/pacman.d configuration file and
-install that application on your Linux machine.
+	Long: `The install command is used to download the latest version of your desired application from an online software repository pointed to by your /etc/pacman.d configuration file and install that application on your Linux machine.
 
-To use flags here, follow the synopsis below:
+To use pacman flags here (like --needed, --noprogressbar, etc.), follow the synopsis below:
 	tulip install <package> -- <flags>
+
+Example:
+	tulip install alacritty -- --noprogress 
+
+Remember that for install command specific flags you do not need the "-- <flags>" format, you can just provide the flags without the extra "--"
 `,
 	Run: func(cmd *cobra.Command, args []string) {
+		upst, _ := cmd.Flags().GetBool("nosync")
+		if !upst{
+		cm := exec.Command("pkexec", "pacman", "-Sy")
+
+		cm.Stdout = os.Stdout
+		cm.Stdin = os.Stdin
+		cm.Stderr = os.Stderr
+		err := cm.Run()
+		if err!=nil {
+			log.Fatal(err)
+		}
+	}
 		internal.PacmanInstall(args)
 	},
 }
@@ -30,14 +48,7 @@ To use flags here, follow the synopsis below:
 func init() {
 	rootCmd.AddCommand(installCmd)
 
-	installCmd.PersistentFlags().Bool("needed", false, "do not reinstall up to date packages")
-	installCmd.PersistentFlags().String("dbpath", "", "set an alternate database location")
-	installCmd.PersistentFlags().Bool("clean", false, "remove old packages from cache directory (-cc for all)")
-	installCmd.PersistentFlags().Bool("nodeps", false, "skip dependency version checks (-dd to skip all checks)")
-	installCmd.PersistentFlags().Bool("groups", false, "view all members of a package group")
-	installCmd.PersistentFlags().Bool("arch", false, "set an alternate architecture")
-	installCmd.PersistentFlags().Bool("noprogressbar", false, "do not show a progress bar when downloading files")
-	installCmd.PersistentFlags().Bool("noscriptlet", false, "do not execute the install scriptlet if one exists")
+	installCmd.PersistentFlags().Bool("nosync", false, "do not sync repositories before installation")
 
 	// Here you will define your flags and configuration settings.
 
